@@ -57,6 +57,7 @@
 @property (nonatomic, retain) NSString*                   alternateXib;
 @property (nonatomic, retain) NSMutableArray*             results;
 @property (nonatomic, retain) NSString*                   formats;
+@property (nonatomic, retain) NSString*                   prompt;
 @property (nonatomic)         BOOL                        is1D;
 @property (nonatomic)         BOOL                        is2D;
 @property (nonatomic)         BOOL                        capturing;
@@ -171,6 +172,7 @@
     BOOL showTorchButton = [options[@"showTorchButton"] boolValue];
     BOOL disableAnimations = [options[@"disableAnimations"] boolValue];
     BOOL disableSuccessBeep = [options[@"disableSuccessBeep"] boolValue];
+    NSString *prompt = options[@"prompt"];
 
     // We allow the user to define an alternate xib file for loading the overlay.
     NSString *overlayXib = options[@"overlayXib"];
@@ -214,6 +216,7 @@
     processor.isTransitionAnimated = !disableAnimations;
 
     processor.formats = options[@"formats"];
+    processor.prompt = prompt;
 
     [processor performSelector:@selector(scanBarcode) withObject:nil afterDelay:0];
 }
@@ -932,6 +935,20 @@ parentViewController:(UIViewController*)parentViewController
   }
     self.toolbar.items = items;
     [overlayView addSubview: self.toolbar];
+  
+    if ([_processor.prompt length] != 0) {
+      UITextView* textView = [[UITextView alloc] init];
+      textView.frame = CGRectMake(0, bounds.size.height - 160, bounds.size.width, 80);
+      textView.backgroundColor = [[UIColor alloc] initWithRed:0 green:0 blue:0 alpha:.4];
+      textView.textColor = [[UIColor alloc] initWithWhite:1 alpha:1];
+      textView.textAlignment = NSTextAlignmentCenter;
+      textView.textContainer.lineBreakMode = NSLineBreakByWordWrapping;
+      [textView setFont:[UIFont fontWithName:textView.font.fontName size:20]];
+      [textView setText:_processor.prompt];
+      textView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+      [overlayView addSubview:textView];
+    }
+  
 
     UIImage* reticleImage = [self buildReticleImage];
     self.reticleView = [[UIImageView alloc] initWithImage:reticleImage];
